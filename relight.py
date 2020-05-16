@@ -1,9 +1,12 @@
 from __future__ import print_function
 import os
 import sys
+import click
+import random
 import sqlite3
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+NOTES_DIR  = os.path.join(SCRIPT_DIR, 'notes')
 
 QUERY = (
     "SELECT "
@@ -16,9 +19,16 @@ QUERY = (
     "WHERE Bookmark.Text != 'None';"
 )
 
-def main():
-    path = sys.argv[1]
+def print_note():
+    note_file = os.path.join(NOTES_DIR, random.choice(os.listdir(NOTES_DIR)))
+    with open(note_file, 'r') as f:
+        note = f.readlines()
 
+    print(
+        'Title : %sAuthor: %s%s' %
+          (note[0], note[1], ("".join([str(x) for x in note[2:]]))))
+
+def store_notes(path):
     if not os.path.exists(path):
         print("ERROR: Path does not exist.", file=sys.stderr)
         sys.exit(1)
@@ -31,10 +41,22 @@ def main():
     sql_connection.close()
 
     for note in data:
-        note_file = os.path.join(SCRIPT_DIR, 'notes', note[0])
+        note_file = os.path.join(NOTES_DIR, note[0])
         f = open(note_file, 'w')
         f.write("\n".join([str(x) for x in note[1:]]))
         f.close()
 
+@click.command()
+@click.option("--store", "-s", default=None, nargs=1,
+              help="Path to KoboReader.sqlite file")
+def relight(store):
+    """
+    Store hightlights from Kobo SQLite, and print a random one.
+    """
+    if(store):
+        store_notes(store)
+    else:
+        print_note()
+
 if __name__ == "__main__":
-    main()
+    relight()
