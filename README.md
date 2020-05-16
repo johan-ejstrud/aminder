@@ -1,5 +1,5 @@
-# Aminder
-Get your Kobo annotations sent via email.
+# Relight
+Extract highlights from your Kobo eReader, to be reminded of them.
 
 ## Credit
 Initial approach to parse the Kobo SQL database file is borrowed from
